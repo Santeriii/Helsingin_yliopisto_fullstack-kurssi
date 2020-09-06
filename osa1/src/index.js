@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom'
 import './index.css'
 
 const Statistics = props => {
+  let sumAvg = 0
+
   if (props.allFeedbackInputs === 0) {
     return <div>No feedback given.</div>
   }
@@ -35,7 +37,7 @@ const Statistics = props => {
       </tr>
       <tr>
         <td>Positive</td>
-        <td>{props.positive * 100} %</td>
+        <td>{props.good / (props.good + props.neutral + props.bad) * 100} %</td>
       </tr>
   </tbody>
 </table>
@@ -51,7 +53,6 @@ const App = (props) => {
   const [allFeedbackInputs, setAll] = useState(0)
   const [averageList, setAverageList] = useState([])
   const [average, setAverage] = useState(0)
-  const [positive, setPositive] = useState(0)
 
   const countAverage = () => {
     if (averageList.length < 1) {
@@ -63,24 +64,11 @@ const App = (props) => {
     }
   }
 
-  const countPositive = async () => {
-    if (averageList.length < 1) {
-      setPositive(0)
-    } else {
-      let sum = 0
-      averageList.forEach(value => {if (value === 1) {
-        sum++
-      }})
-      setPositive(sum / averageList.length)
-    }
-  }
-
   const handleGoodClick = () => {
     setAverageList(averageList.concat(1))
     setAll(allFeedbackInputs + 1)
     setGood(good + 1)
     countAverage()
-    countPositive()
   }
 
   const handleNeutralClick = () => {
@@ -88,7 +76,6 @@ const App = (props) => {
     setAll(allFeedbackInputs + 1)
     setNeutral(neutral + 1)
     countAverage()
-    countPositive()
   }
 
   const handleBadClick = () => {
@@ -96,7 +83,6 @@ const App = (props) => {
     setAll(allFeedbackInputs + 1)
     setBad(bad + 1)
     countAverage()
-    countPositive()
   }
 
   const Button = ({ onClick, text }) => (
