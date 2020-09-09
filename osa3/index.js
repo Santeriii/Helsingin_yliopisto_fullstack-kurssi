@@ -1,8 +1,18 @@
 const express = require('express')
+const morgan = require('morgan')
 const { request, response } = require('express')
 const app = express()
 
 app.use(express.json())
+app.use(requestLogger)
+
+const requestLogger = (req, res, next) => {
+  console.log('Method: ', req.method)
+  console.log('Path: ', req.path)
+  console.log('Body: ', req.body)
+  console.log('---')
+  next()
+}
 
 let notes = [
     {
@@ -37,6 +47,13 @@ app.get('/api/notes/:id', (request, response) => {
     response.status(404).end()
   }
 })
+
+const generateId = () => {
+  const maxId = notes.length > 0
+    ? Math.max(...notes.map(n => n.id))
+    : 0
+  return maxId + 1
+}
 
 app.post('/api/notes', (request, response) => {
   const body = request.body
@@ -78,3 +95,9 @@ const port = 3001
 app.listen(port, () => {
     console.log('Server running on port ${port}')
 })
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
