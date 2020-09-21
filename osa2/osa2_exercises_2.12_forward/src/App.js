@@ -13,16 +13,18 @@ const App = () => {
                 setCountries(response.data)
             })
         const results = countries.filter(country => country.name.toLowerCase().includes(searchTerm))
-    
-        setSearchResults(results)
+
+        console.log(results)
+
+        if (results.length > 10) {
+            setSearchResults(searchResults.concat({name: "Too many search results"}))
+        } else {
+            setSearchResults(results)
+        }
     }, [searchTerm])
 
     const handleCountrySearch = (event) => {
         setSearchTerm(event.target.value)
-    }
-
-    const generateKey = () => {
-        return Math.round(1000 * Math.random)
     }
 
     return (
@@ -32,10 +34,20 @@ const App = () => {
                     value={searchTerm}
                     onChange={handleCountrySearch}
                 />
-                <ul key={generateKey}>
-                    {searchResults.map(country => (
-                    <li key={generateKey}>{country.name}</li>
-                    ))}
+                <ul>
+                {searchResults.length === 1 ?
+
+                searchResults.map(country => (
+                    <div>
+                        <h1 key={country.name}>{country.name}</h1><br/><p>{country.population}<br/>{country.capital}</p>
+                    </div>
+                ))
+
+                :
+
+                searchResults.map(country => (
+                    <li key={country.name}>{country.name}</li>
+                ))}
                 </ul>
             </div>
         </div>
