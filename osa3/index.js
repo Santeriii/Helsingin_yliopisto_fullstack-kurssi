@@ -2,17 +2,10 @@ const express = require('express')
 const morgan = require('morgan')
 const { request, response } = require('express')
 const app = express()
+const cors = require('cors')
 
+app.use(cors())
 app.use(express.json())
-app.use(requestLogger)
-
-const requestLogger = (req, res, next) => {
-  console.log('Method: ', req.method)
-  console.log('Path: ', req.path)
-  console.log('Body: ', req.body)
-  console.log('---')
-  next()
-}
 
 let notes = [
     {
@@ -34,6 +27,16 @@ let notes = [
       important: true
     }
 ]
+
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+}
+
+app.use(requestLogger)
 
 app.get('/api/notes/:id', (request, response) => {
   const id = Number(request.params.id)
@@ -91,9 +94,9 @@ app.get('/api/notes', (req, res) => {
     res.json(notes)
 })
 
-const port = 3001
-app.listen(port, () => {
-    console.log('Server running on port ${port}')
+const PORT = process.env.PORT || 3007
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
 
 const unknownEndpoint = (req, res) => {
