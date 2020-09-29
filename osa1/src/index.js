@@ -1,70 +1,111 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
+import './index.css'
 
-const Header = (props) => {
+const Statistics = props => {
+  let sumAvg = 0
+
+  if (props.allFeedbackInputs === 0) {
+    return <div>No feedback given.</div>
+  }
   return (
-    <div>
-      <h1>{props.course.name}</h1>
-    </div>
+  <table>
+    <tbody>
+      <tr>
+        <th></th>
+        <th></th>
+      </tr>
+      <tr>
+        <td>Good</td>
+        <td>{props.good}</td>
+      </tr>
+      <tr>
+        <td>Neutral</td>
+        <td>{props.neutral}</td>
+      </tr>
+      <tr>
+        <td>Bad</td>
+        <td>{props.bad}</td>
+      </tr>
+      <tr>
+        <td>All</td>
+        <td>{props.allFeedbackInputs}</td>
+      </tr>
+      <tr>
+        <td>Average</td>
+        <td>{props.average}</td>
+      </tr>
+      <tr>
+        <td>Positive</td>
+        <td>{props.good / (props.good + props.neutral + props.bad) * 100} %</td>
+      </tr>
+  </tbody>
+</table>
   )
 }
 
-const Content = (props) => {
-  console.log(props)
-  return (
-    <div>
-      {props.course.parts.map(x => (
-        <Part name={x.name} exercises={x.exercises}/>
-      ))}
-    </div>
-  )
-}
 
-const Part = (props) => {
-  console.log(props)
-  return (
-    <div>
-      <p> {props.name} {props.exercises} </p>
-    </div>
-  )
-}
 
-const Total = (props) => {
-  console.log(props)
-  return (
-    <div>
-      <p>Number of exercises {props.course.parts[0].exercises + props.course.parts[1].exercises + props.course.parts[2].exercises}</p>
-    </div>
-  )
-}
-const App = () => {
-  const course = {
-    name: 'Half Stack application development',
-    parts: [
-      {
-        name: 'Fundamentals of React',
-        exercises: 10
-      },
-      {
-        name: 'Using props to pass data',
-        exercises: 7
-      },
-      {
-        name: 'State of a component',
-        exercises: 14
-      }
-    ]
+const App = (props) => {
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
+  const [allFeedbackInputs, setAll] = useState(0)
+  const [averageList, setAverageList] = useState([])
+  const [average, setAverage] = useState(0)
+
+  const countAverage = () => {
+    if (averageList.length < 1) {
+      setAverage(0)
+    } else {
+      let sumAvg = 0
+      averageList.forEach(value => sumAvg += value)
+      setAverage(sumAvg / allFeedbackInputs)
+    }
   }
 
+  const handleGoodClick = () => {
+    setAverageList(averageList.concat(1))
+    setAll(allFeedbackInputs + 1)
+    setGood(good + 1)
+    countAverage()
+  }
 
+  const handleNeutralClick = () => {
+    setAverageList(averageList.concat(0))
+    setAll(allFeedbackInputs + 1)
+    setNeutral(neutral + 1)
+    countAverage()
+  }
 
-  return (
+  const handleBadClick = () => {
+    setAverageList(averageList.concat(-1))
+    setAll(allFeedbackInputs + 1)
+    setBad(bad + 1)
+    countAverage()
+  }
+
+  const Button = ({ onClick, text }) => (
+    <button onClick={onClick}>
+      {text}
+    </button>
+  )
+
+  return ( 
     <div>
-      <Header course={course} />
-      <Content course={course} />
-      <Total course={course} />
+      <p>Give feedback</p>
+      <div>
+        <Button onClick={handleGoodClick} text='Good' /><Button onClick={handleNeutralClick} text='Neutral' /><Button onClick={handleBadClick} text='Bad' />
+      </div>
+      <p>Statistics</p>
+      <div>
+        <Statistics good={good} neutral={neutral} bad={bad} allFeedbackInputs={allFeedbackInputs} average={average} positive={positive}/>
+      </div>
     </div>
   )
 }
 
-ReactDOM.render(<App />, document.getElementById('root'))
+ReactDOM.render(
+  <App />,
+  document.getElementById('root')
+)
