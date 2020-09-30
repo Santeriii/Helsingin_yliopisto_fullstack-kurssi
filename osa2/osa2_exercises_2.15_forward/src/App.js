@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import axios from 'axios'
+import personService from './services/persons'
 
 const App = () => {
   const [ persons, setPersons] = useState([]) 
@@ -8,11 +9,11 @@ const App = () => {
   const [ newNumber, setNewNumber ] = useState('')
 
   useEffect(() => {
-      axios
-       .get('http://localhost:3001/persons')
-       .then(response => {
-           setPersons(response.data)
-       })
+      personService
+      .getAll()
+      .then(persons => {
+        setPersons(persons)
+      })
   }, [])
 
   let generateKey = () => Math.round(300 * Math.random())
@@ -31,15 +32,29 @@ const App = () => {
                 includes = true
             }
         })
-    
 
     if (!includes) {
+      personService
+      .create(personObject)
+      .then(persons => {
         setPersons(persons.concat(personObject))
         setNewName('')
+      })
     } else {
         window.alert(`${newName} is already added to phonebook`)
     }
   }
+
+  const handleDelete = (event) => {
+  console.log(event.target.value)
+
+    personService
+    .deleteItem(event.target.value)
+    .then(persons => {
+      console.log(persons)
+      setPersons(persons)
+    })
+  }, [persons])
 
   const handleNumberChange = (event) => {
       console.log(event.target.value)
@@ -76,7 +91,10 @@ const App = () => {
       </form>
       <h2>Numbers</h2>
       {persons.map(person =>
+      <>
         <li key={generateKey()}>{person.name} {person.number}</li>
+        <button value={person.id} onClick={handleDelete}>delete</button>
+      </>
     )}
     </div>
   )
